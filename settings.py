@@ -16,7 +16,7 @@ class Settings:
     self.speedup_scale = 1.5
     self.score_scale = 1.5
 
-    self.aliens_fireevery = 30
+    self.aliens_fireevery = 60
     
     self.initialize_dynamic_settings()
 

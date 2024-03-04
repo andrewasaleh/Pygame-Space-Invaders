@@ -3,7 +3,7 @@ from settings import Settings
 
 
 class Button: 
-  def __init__(self, game, text, size=(200, 50), text_color=(255, 255, 255), bg_color=(0, 0, 255), selected_color=(0, 255, 50)):
+  def __init__(self, game, text, size=(200, 60), text_color=(255, 255, 255), bg_color=(200, 0, 0), selected_color=(255, 0, 0)):
     self.game = game 
     self.screen = game.screen
     self.settings = game.settings
@@ -13,10 +13,10 @@ class Button:
     self.text = text 
     self.width, self.height = size[0], size[1]
 
-    self.text_color = text_color 
-    self.bg_color = bg_color
-    self.selected_color = selected_color
-    self.font = pg.font.SysFont(None, 48)
+    self.text_color = text_color  # White text color for contrast
+    self.bg_color = bg_color  # Bright red as the button background color
+    self.selected_color = selected_color  # Darker red when the button is hovered over
+    self.font = pg.font.Font('font/pixelFont.ttf', 48)  # Assuming you're using a custom pixel font
     self.ensure_min_size()        
     self.prep_text()
 
