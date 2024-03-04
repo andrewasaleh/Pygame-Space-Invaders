@@ -58,9 +58,10 @@ class Scoreboard:
       self.ships.add(ship)
 
   def check_high_score(self):
-     if self.stats.score > self.stats.high_score:
-        self.stats.high_score = self.stats.score
-        self.prep_high_score()
+      if self.stats.score > self.stats.high_score:
+          self.stats.high_score = self.stats.score
+          self.prep_high_score()
+          self.stats.save_high_score()  # Save the new high score to file
 
   def update(self): 
     self.draw()
