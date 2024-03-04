@@ -23,7 +23,7 @@ class Game:
     self.aliens = None
     self.stats = GameStats(game=self)
     self.sb = Scoreboard(game=self)
-
+    
     self.ship = Ship(game=self)
     self.aliens = Aliens(game=self)  
     self.ship.set_aliens(self.aliens)
@@ -31,6 +31,18 @@ class Game:
     self.game_active = False              # MUST be before Button is created
     self.first = True
     self.play_button = Button(game=self, text='Play')
+    self.to_remove = []  # List to keep track of aliens scheduled for removal
+    
+  def schedule_removal(self, alien):
+      if alien not in self.to_remove:
+          self.to_remove.append(alien)
+
+  def remove_aliens(self):
+      # Remove any aliens that have been flagged for removal
+      for alien in self.to_remove:
+          if alien in self.aliens.alien_group:
+              self.aliens.alien_group.remove(alien)
+      self.to_remove.clear()
 
   def check_events(self):
     for event in pg.event.get():
@@ -65,7 +77,7 @@ class Game:
     self.screen.fill(self.settings.bg_color)
     self.ship.reset()
     self.aliens.reset()
-    self.settings.initialize_dynamic_settings()
+    self.settings.initialize_dynamic_settings()                                         
 
   def game_over(self):
     print('Game Over !')
@@ -82,23 +94,24 @@ class Game:
     self.first = False
 
   def play(self):
-    finished = False
-    self.screen.fill(self.settings.bg_color)
+      finished = False
+      self.screen.fill(self.settings.bg_color)
 
-    while not finished:
-      self.check_events()    # exits if Cmd-Q on macOS or Ctrl-Q on other OS
+      while not finished:
+          self.check_events()  # Handle events
 
-      if self.game_active or self.first:
-        self.first = False
-        self.screen.fill(self.settings.bg_color)
-        self.ship.update()
-        self.aliens.update()   # when we have aliens
-        self.sb.update()
-      else:
-        self.play_button.update()  
-      
-      pg.display.flip()
-      time.sleep(0.02)
+          if self.game_active or self.first:
+              self.first = False
+              self.screen.fill(self.settings.bg_color)
+              self.ship.update()
+              self.aliens.update()  # Update aliens, checks for collisions within
+              self.sb.update()
+              self.remove_aliens()  # Check for and remove any aliens scheduled for removal
+          else:
+              self.play_button.update()
+
+          pg.display.flip()
+          time.sleep(0.02)
 
 
 if __name__ == '__main__':

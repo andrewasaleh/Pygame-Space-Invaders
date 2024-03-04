@@ -8,8 +8,8 @@ from timer import Timer
 
 
 class Alien(Sprite):
-  names = ['Asset 3', 'Asset 4', 'Asset 4', 'Asset 5', 'Asset 6', 'Asset 7']
-  points = [10, 25, 300, 35, 100, 600]
+  names = ['Asset 2', 'Asset 3', 'Asset 4', 'Asset 5', 'Asset 6', 'Asset 7']
+  points = [40, 10, 60, 100, 90, 200]
   images = [pg.image.load(f'images/alien_{name}.png') for name in names] 
   # nameslen = len(names)
   # choices = [randint(0, nameslen) for _ in range(nameslen)]
@@ -111,8 +111,8 @@ class Aliens():
 
     x, y, row = alien_width, alien_height, 0
     self.aliens_created = 0
-    while y < (self.settings.screen_height - 3 * alien_height):
-      while x < (self.settings.screen_width - 2 * alien_width):
+    while y < (self.settings.screen_height - 4 * alien_height):
+      while x < (self.settings.screen_width - 3 * alien_width):
         self.create_alien(x=x, y=y, row=row, alien_no=self.aliens_created)
         x += self.settings.alien_spacing * alien_width
         self.aliens_created += 1

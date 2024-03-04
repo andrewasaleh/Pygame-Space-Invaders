@@ -45,14 +45,19 @@ class Lasers():                                # can now have aliens or ship fir
     self.owner = owner                         # handles which object is shooting the laser
     self.laser_group = pg.sprite.Group()
 
-  def lasergroup(self): return self.laser_group
+    # Load the laser sound
+    self.laser_sound = pg.mixer.Sound('sounds/laser-sound.wav')  # Adjust path as necessary
 
-  def add(self, owner):         # all lasers in an instance have same v and timer
-                                #    but can have different owners (each Alien can shoot)
+  def lasergroup(self):  # This method should not be nested inside __init__
+    return self.laser_group
+
+  def add(self, owner):         
     new_laser = Laser(self.game, v=self.v, timer=self.timer, owner=owner)
     self.laser_group.add(new_laser) 
+    self.laser_sound.play()  # Play sound when adding a laser
 
-  def empty(self): self.laser_group.empty()
+  def empty(self): 
+    self.laser_group.empty()
 
   def update(self):
     for laser in self.laser_group.sprites():
