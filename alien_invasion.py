@@ -12,6 +12,35 @@ from scoreboard import Scoreboard
 class Game:
   key_velocity = {pg.K_RIGHT: Vector(1, 0), pg.K_LEFT: Vector(-1,  0),
                   pg.K_UP: Vector(0, -1), pg.K_DOWN: Vector(0, 1)}
+  def show_launch_screen(self):
+    """Display the launch screen and wait for the player to start the game."""
+    self.screen.fill(self.settings.bg_color)  # Fill the background color
+    # Display the game title
+    title_font = pg.font.Font('font/pixelFont.ttf', 74)  # Use Pygame's default font
+    title_text = title_font.render("Alien Invasion", True, (255, 255, 255))
+    title_rect = title_text.get_rect()
+    title_rect.center = (self.settings.screen_width / 2, self.settings.screen_height / 3)
+    self.screen.blit(title_text, title_rect)
+
+    # Display the prompt to start the game
+    prompt_font = pg.font.Font('font/pixelFont.ttf', 36)
+    prompt_text = prompt_font.render("Press 'Space' to play", True, (255, 255, 255))
+    prompt_rect = prompt_text.get_rect()
+    prompt_rect.center = (self.settings.screen_width / 2, self.settings.screen_height / 2)
+    self.screen.blit(prompt_text, prompt_rect)
+
+    pg.display.flip()  # Update the display to show the launch screen
+
+    # Wait for the player to press 'Space' to start the game
+    waiting = True
+    while waiting:
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                pg.quit()
+                sys.exit()
+            elif event.type == pg.KEYDOWN:
+                if event.key == pg.K_SPACE:
+                    waiting = False
 
   def __init__(self):
     pg.init()
@@ -115,6 +144,6 @@ class Game:
 
 
 if __name__ == '__main__':
-  g = Game()
-  g.play()
-
+    g = Game()
+    g.show_launch_screen()  # Show the launch screen before starting the game
+    g.play()
