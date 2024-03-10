@@ -39,7 +39,7 @@ class Alien(Sprite):
     self.x = float(self.rect.x)
     self.isdying = False
     self.reallydead = False 
-
+    
   def laser_offscreen(self, rect): return rect.bottom > self.screen_rect.bottom  
 
   def laser_start_rect(self):
@@ -141,13 +141,16 @@ class Aliens():
     # ship lasers taking out aliens
     collisions = pg.sprite.groupcollide(self.ship.lasers.lasergroup(), self.alien_group, True, True)
     if len(collisions) > 0: 
-      for alien in collisions:
-        index = alien.timer.current_index()
-        points = Alien.points[index]
-        self.stats.score += points
-        # self.stats.score += self.settings.alien_points
-      self.sb.prep_score()
-      self.sb.check_high_score()
+        for aliens in collisions.values():
+            for alien in aliens:
+                self.game.sound.play_explosion()  # Play explosion sound for each alien hit
+                # Add score based on alien's point value
+                index = alien.timer.current_index()
+                points = Alien.points[index]
+                self.stats.score += points
+        
+        self.sb.prep_score()
+        self.sb.check_high_score()
 
     # laser-laser collisions
     collisions = pg.sprite.groupcollide(self.ship.lasers.lasergroup(), self.lasers.lasergroup(), 

@@ -7,6 +7,14 @@ from vector import Vector
 from time import sleep
 from sound import Sound
 
+class Spritesheet:
+    def __init__(self, filename):
+        self.spritesheet = pg.image.load(filename).convert_alpha()
+
+    def get_image(self, x, y, width, height):
+        image = pg.Surface((width, height), pg.SRCALPHA)
+        image.blit(self.spritesheet, (0, 0), (x, y, width, height))
+        return image
 
 class Ship(Sprite):
   laser_image_files = [f'images/ship_laser_0{x}.png' for x in range(2)]
@@ -31,6 +39,18 @@ class Ship(Sprite):
     self.rect.midbottom = self.screen_rect.midbottom 
     self.fire_counter = 0
     self.sound = Sound()
+    self.explosion_spritesheet = Spritesheet('spritesheets/boom.png')
+    self.explosion_frames = self.load_explosion_frames()
+    self.exploding = False
+    self.explosion_frame_index = 0
+    self.explosion_animation_speed = 0.4
+
+  def load_explosion_frames(self):
+      frames = []
+      for i in range(12):  
+          frame = self.explosion_spritesheet.get_image(i * 64, 0, 64, 64)
+          frames.append(frame)
+      return frames
 
   def set_aliens(self, aliens): self.aliens = aliens
 
@@ -62,15 +82,19 @@ class Ship(Sprite):
     self.lasers.add(owner=self)
     self.sound.play_phaser()
 
-  def hit(self): 
-    print('Abandon ship! Ship has been hit!')
-    time.sleep(0.2)
-    self.stats.ships_left -= 1
-    self.sb.prep_ships()
-    if self.stats.ships_left <= 0:
-      self.game.game_over()
-    else:
-      self.game.restart()
+  def hit(self):
+      print('Abandon ship! Ship has been hit!')
+      # Play explosion sound
+      self.sound.play_explosion()
+      time.sleep(0.2)  # You might want to adjust or remove this sleep based on your game's requirements
+      self.stats.ships_left -= 1
+      self.sb.prep_ships()
+      self.exploding = True
+      self.explosion_frame_index = 0
+      if self.stats.ships_left <= 0:
+          self.game.game_over()
+      else:
+          self.game.restart()
 
   def laser_offscreen(self, rect): return rect.bottom < 0
 
@@ -88,17 +112,25 @@ class Ship(Sprite):
     self.center_ship()
 
   def update(self):
-    self.rect.left += self.v.x * self.settings.ship_speed
-    self.rect.top += self.v.y * self.settings.ship_speed
-    self.clamp()
-    self.draw()
-    if self.continuous_fire and self.fire_counter % 3 == 0:   # slow down firing slightly
-      self.fire()
-    self.fire_counter += 1
-    self.lasers.update()
+      if self.exploding:
+          self.explosion_frame_index += self.explosion_animation_speed
+          if self.explosion_frame_index >= len(self.explosion_frames):
+              self.exploding = False
+      self.rect.left += self.v.x * self.settings.ship_speed
+      self.rect.top += self.v.y * self.settings.ship_speed
+      self.clamp()
+      self.draw()
+      if self.continuous_fire and self.fire_counter % 3 == 0:   # slow down firing slightly
+        self.fire()
+      self.fire_counter += 1
+      self.lasers.update()
 
   def draw(self):
-    self.screen.blit(self.image, self.rect)
+      if self.exploding:
+          frame = self.explosion_frames[int(self.explosion_frame_index)]
+          self.screen.blit(frame, self.rect.topleft)
+      else:
+          self.screen.blit(self.image, self.rect)
 
 
 if __name__ == '__main__':
