@@ -7,11 +7,14 @@ from vector import Vector
 from game_stats import GameStats
 from button import Button
 from scoreboard import Scoreboard
+# from barriers import Barriers
+from sound import Sound
 
 
 class Game:
   key_velocity = {pg.K_RIGHT: Vector(1, 0), pg.K_LEFT: Vector(-1,  0),
                   pg.K_UP: Vector(0, -1), pg.K_DOWN: Vector(0, 1)}
+
   def show_launch_screen(self):
     """Display the launch screen and wait for the player to start the game."""
     self.screen.fill(self.settings.bg_color)  # Fill the background color
@@ -41,7 +44,7 @@ class Game:
             elif event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
                     waiting = False
-
+  
   def __init__(self):
     pg.init()
     self.settings = Settings()
@@ -51,16 +54,17 @@ class Game:
 
     self.aliens = None
     self.stats = GameStats(game=self)
+    self.sound = Sound()
     self.sb = Scoreboard(game=self)
-    
+
     self.ship = Ship(game=self)
     self.aliens = Aliens(game=self)  
     self.ship.set_aliens(self.aliens)
     self.ship.set_sb(self.sb)
+    # self.barriers = Barriers(game=self)
     self.game_active = False              # MUST be before Button is created
     self.first = True
     self.play_button = Button(game=self, text='Play')
-    self.to_remove = []  # List to keep track of aliens scheduled for removal
     
   def schedule_removal(self, alien):
       if alien not in self.to_remove:
@@ -106,7 +110,8 @@ class Game:
     self.screen.fill(self.settings.bg_color)
     self.ship.reset()
     self.aliens.reset()
-    self.settings.initialize_dynamic_settings()                                         
+    # self.barriers.reset()
+    self.settings.initialize_dynamic_settings()                                  
 
   def game_over(self):
     print('Game Over !')
@@ -117,30 +122,32 @@ class Game:
     self.game_active = False
     self.stats.reset()
     self.restart()
+    self.sound.play_game_over()
 
   def activate(self): 
     self.game_active = True
     self.first = False
+    self.sound.play_music("sounds/game-music.wav")
 
   def play(self):
       finished = False
       self.screen.fill(self.settings.bg_color)
 
       while not finished:
-          self.check_events()  # Handle events
+        self.check_events()    # exits if Cmd-Q on macOS or Ctrl-Q on other OS
 
-          if self.game_active or self.first:
-              self.first = False
-              self.screen.fill(self.settings.bg_color)
-              self.ship.update()
-              self.aliens.update()  # Update aliens, checks for collisions within
-              self.sb.update()
-              self.remove_aliens()  # Check for and remove any aliens scheduled for removal
-          else:
-              self.play_button.update()
-
-          pg.display.flip()
-          time.sleep(0.02)
+        if self.game_active or self.first:
+          self.first = False
+          self.screen.fill(self.settings.bg_color)
+          self.ship.update()
+          self.aliens.update()   # when we have aliens
+          # self.barriers.update()
+          self.sb.update()
+        else:
+          self.play_button.update()  
+        
+        pg.display.flip()
+        time.sleep(0.02)
 
 
 if __name__ == '__main__':

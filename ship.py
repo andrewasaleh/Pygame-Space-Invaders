@@ -5,6 +5,7 @@ from lasers import Lasers
 from timer import Timer
 from vector import Vector 
 from time import sleep
+from sound import Sound
 
 
 class Ship(Sprite):
@@ -21,15 +22,15 @@ class Ship(Sprite):
     self.lasers = Lasers(game=game, v=Vector(0, -1) * self.settings.laser_speed, 
                          timer=self.laser_timer, owner=self)
     self.aliens = game.aliens
+    self.sound = game.sound
     self.continuous_fire = False
     self.screen = game.screen 
     self.screen_rect = game.screen.get_rect() 
-
     self.image = pg.image.load('images/ship.png')
     self.rect = self.image.get_rect()
-
     self.rect.midbottom = self.screen_rect.midbottom 
     self.fire_counter = 0
+    self.sound = Sound()
 
   def set_aliens(self, aliens): self.aliens = aliens
 
@@ -57,7 +58,9 @@ class Ship(Sprite):
 
   def cease_fire(self): self.continuous_fire = False
 
-  def fire(self): self.lasers.add(owner=self)
+  def fire(self): 
+    self.lasers.add(owner=self)
+    self.sound.play_phaser()
 
   def hit(self): 
     print('Abandon ship! Ship has been hit!')
