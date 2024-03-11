@@ -1,14 +1,14 @@
 class Settings:
   def __init__(self):
     self.screen_width = 1200
-    self.screen_height = 700
+    self.screen_height = 800
     self.bg_color = (10, 10, 10)
 
-    self.laser_width = 10
-    self.laser_height = 15
+    self.laser_width = 5
+    self.laser_height = 5
     self.laser_color = (255, 0, 0)
 
-    self.alien_spacing = 1.3
+    self.alien_spacing = 1.8
     self.fleet_drop = 8
 
     self.ship_limit = 3

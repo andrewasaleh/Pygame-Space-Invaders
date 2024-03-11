@@ -7,7 +7,7 @@ from vector import Vector
 from game_stats import GameStats
 from button import Button
 from scoreboard import Scoreboard
-# from barriers import Barriers
+from barriers import Barrier
 from sound import Sound
 
 
@@ -18,9 +18,12 @@ class Game:
   def __init__(self):
     pg.init()
     self.settings = Settings()
-    self.screen = pg.display.set_mode(
-      (self.settings.screen_width, self.settings.screen_height))
+    self.screen = pg.display.set_mode((self.settings.screen_width, self.settings.screen_height))
     pg.display.set_caption("Alien Invasion")
+
+    # Load and scale the background image
+    self.bg_image = pg.image.load('images/play-background.png').convert()
+    self.bg_image = pg.transform.scale(self.bg_image, (self.settings.screen_width, self.settings.screen_height))
 
     self.aliens = None
     self.stats = GameStats(game=self)
@@ -31,11 +34,24 @@ class Game:
     self.aliens = Aliens(game=self)  
     self.ship.set_aliens(self.aliens)
     self.ship.set_sb(self.sb)
+
     # self.barriers = Barriers(game=self)
     self.game_active = False              # MUST be before Button is created
     self.first = True
     self.play_button = Button(game=self, text='Play')
+    self.barriers = pg.sprite.Group()
+    self.create_barriers()
+    self.barriers.draw(self.screen)  # Draws all barriers in the group to the screen
+    self.finished = False 
     
+  # In your Game class
+  def create_barriers(self):
+      # Positioning example; adjust as needed
+      barrier_positions = [(100, 600), (400, 600), (700, 600), (1000, 600)]
+      for pos in barrier_positions:
+          barrier = Barrier(self, *pos)
+          self.barriers.add(barrier)  # Assuming self.barriers is a pygame.sprite.Group
+
   def schedule_removal(self, alien):
       if alien not in self.to_remove:
           self.to_remove.append(alien)
@@ -101,17 +117,18 @@ class Game:
 
   def play(self):
       finished = False
-      self.screen.fill(self.settings.bg_color)
-
+      self.screen.blit(self.bg_image, (0, 0))
+      
       while not finished:
         self.check_events()    # exits if Cmd-Q on macOS or Ctrl-Q on other OS
 
         if self.game_active or self.first:
           self.first = False
-          self.screen.fill(self.settings.bg_color)
+          self.screen.blit(self.bg_image, (0, 0))
           self.ship.update()
           self.aliens.update()   # when we have aliens
           # self.barriers.update()
+          self.barriers.draw(self.screen)
           self.sb.update()
         else:
           self.play_button.update()  

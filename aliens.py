@@ -9,7 +9,7 @@ from timer import Timer
 
 class Alien(Sprite):
   names = ['Asset 2', 'Asset 3', 'Asset 4', 'Asset 5', 'Asset 6', 'Asset 7']
-  points = [40, 10, 60, 100, 90, 200]
+  points = [40, 10, 60, 100, 150, 200]
   images = [pg.image.load(f'images/alien_{name}.png') for name in names] 
   # nameslen = len(names)
   # choices = [randint(0, nameslen) for _ in range(nameslen)]
