@@ -38,7 +38,6 @@ class Ship(Sprite):
     self.rect = self.image.get_rect()
     self.rect.midbottom = self.screen_rect.midbottom 
     self.fire_counter = 0
-    self.sound = Sound()
     self.explosion_spritesheet = Spritesheet('spritesheets/boom.png')
     self.explosion_frames = self.load_explosion_frames()
     self.exploding = False
@@ -86,7 +85,7 @@ class Ship(Sprite):
       print('Abandon ship! Ship has been hit!')
       # Play explosion sound
       self.sound.play_explosion()
-      time.sleep(0.2)  # You might want to adjust or remove this sleep based on your game's requirements
+      time.sleep(0.2)  
       self.stats.ships_left -= 1
       self.sb.prep_ships()
       self.exploding = True
