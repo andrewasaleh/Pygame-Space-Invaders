@@ -22,23 +22,20 @@ class Alien(Sprite):
     self.screen = game.screen
     self.screen_rect = self.screen.get_rect()
     self.settings = game.settings
+    
+    # Set the image based on the row number for specific alien type per row
+    alien_index = row % len(Alien.images)
+    self.image = Alien.images[alien_index]
 
-    self.regtimer = Timer(Alien.images, start_index=randint(0, len(Alien.images) - 1), delta=20)
-    # self.explosiontimer = Timer(Alien.explosionimages, delta=20, looponce=True)
-    self.timer = self.regtimer
-
-    self.image = Alien.images[row % len(Alien.names)]
-    self.alien_no = alien_no
-    # self.image = Alien.images[randint(0, 5)]
-    # self.image = Alien.images[Alien.choices[row % len(Alien.names)]]
+    # Initialize rect and other attributes
     self.rect = self.image.get_rect()
 
+    # Initial position setup remains unchanged
     self.rect.x = self.rect.width
     self.rect.y = self.rect.height 
-
     self.x = float(self.rect.x)
-    self.isdying = False
-    self.reallydead = False 
+    self.timer = Timer(Alien.images, start_index=randint(0, len(Alien.images) - 1), delta=20)
+
     
   def laser_offscreen(self, rect): return rect.bottom > self.screen_rect.bottom  
 
@@ -65,8 +62,9 @@ class Alien(Sprite):
     self.draw()
 
   def draw(self): 
-    self.image = self.timer.current_image()
-    self.screen.blit(self.image, self.rect)
+      if self.timer is not None:
+          self.image = self.timer.current_image()
+      self.screen.blit(self.image, self.rect)
 
 
 class Aliens():
@@ -91,10 +89,12 @@ class Aliens():
     self.fire_every_counter = 0
     self.create_fleet()
 
-  def create_alien(self, x, y, row, alien_no):
-      alien = Alien(self.game, row, alien_no)
-      alien.x = x
-      alien.rect.x, alien.rect.y = x, y
+  def create_alien(self, alien_number, row_number, alien_width, alien_height):
+      # Create an alien and place it in the row.
+      alien = Alien(self.game, row=row_number, alien_no=alien_number)
+      alien.x = alien_width + 2 * alien_width * alien_number
+      alien.rect.x = alien.x
+      alien.rect.y = alien_height + 2 * alien_height * row_number
       self.alien_group.add(alien)
       
   def empty(self): self.alien_group.empty()
@@ -105,20 +105,22 @@ class Aliens():
     self.create_fleet() 
   
   def create_fleet(self):
-    self.fire_every_counter = 0
-    alien = Alien(self.game, row=0, alien_no=-1)
-    alien_width, alien_height = alien.rect.size 
+      # Create a sample alien to get its size for calculations
+      alien = Alien(self.game, row=0, alien_no=-1)
+      alien_width, alien_height = alien.rect.size
 
-    x, y, row = alien_width, alien_height, 0
-    self.aliens_created = 0
-    while y < (self.settings.screen_height - 4 * alien_height):
-      while x < (self.settings.screen_width - 3 * alien_width):
-        self.create_alien(x=x, y=y, row=row, alien_no=self.aliens_created)
-        x += self.settings.alien_spacing * alien_width
-        self.aliens_created += 1
-      x = alien_width
-      y += self.settings.alien_spacing * alien_height
-      row += 1
+      # Calculate the number of aliens that fit in a row
+      available_space_x = self.settings.screen_width - (2 * alien_width)
+      number_aliens_x = available_space_x // (2 * alien_width)
+
+      # Calculate the number of rows of aliens that fit on the screen
+      available_space_y = (self.settings.screen_height - (3 * alien_height) - self.ship.rect.height)
+      number_rows = available_space_y // (2 * alien_height)
+
+      # Create the fleet of aliens, now with each row having a specific alien type
+      for row_number in range(number_rows):
+          for alien_number in range(number_aliens_x):
+              self.create_alien(alien_number, row_number, alien_width, alien_height)
 
   def check_edges(self):
     for alien in self.alien_group.sprites():

@@ -44,7 +44,6 @@ class Game:
     self.barriers.draw(self.screen)  # Draws all barriers in the group to the screen
     self.finished = False 
     
-  # In your Game class
   def create_barriers(self):
       # Positioning example; adjust as needed
       barrier_positions = [(100, 600), (400, 600), (700, 600), (1000, 600)]
@@ -117,51 +116,42 @@ class Game:
 
   def play(self):
       finished = False
-      self.screen.blit(self.bg_image, (0, 0))
-      
       while not finished:
-        self.check_events()    # exits if Cmd-Q on macOS or Ctrl-Q on other OS
+          self.check_events()
 
-        if self.game_active or self.first:
-          self.first = False
-          self.screen.blit(self.bg_image, (0, 0))
-          self.ship.update()
-          self.aliens.update()   # when we have aliens
-          # self.barriers.update()
-          self.barriers.draw(self.screen)
-          self.sb.update()
-        else:
-          self.play_button.update()  
-        
-        pg.display.flip()
-        time.sleep(0.02)
+          if self.game_active or self.first:
+              self.first = False
+              self.screen.blit(self.bg_image, (0, 0))
+              self.ship.update()
+              self.aliens.update()
+              if self.game_active:  # Ensure this is only true when the game is active
+                  self.barriers.draw(self.screen)  # Move this inside the conditional
+              self.sb.update()
+          else:
+              self.play_button.update()
+
+          pg.display.flip()
+          time.sleep(0.02)
+
 
 
   def show_launch_screen(self):
       """Display the launch screen and wait for the player to start the game."""
-      # Load background image
-      background_image = pg.image.load('images/background.png').convert()
-      # Resize background to fit the screen, if necessary
-      background_image = pg.transform.scale(background_image, (self.settings.screen_width, self.settings.screen_height))
-
-      # Blit the background image
-      self.screen.blit(background_image, (0, 0))
+      self.screen.fill((0, 0, 0))  # Fill the screen with black or another color
 
       # Display the game title
-      title_font = pg.font.Font('font/pixelFont.ttf', 74)  # Use Pygame's default font
+      title_font = pg.font.Font('font/pixelFont.ttf', 74)
       title_text = title_font.render("Alien Invasion", True, (255, 255, 255))
-      title_rect = title_text.get_rect()
-      title_rect.center = (self.settings.screen_width / 2, self.settings.screen_height / 3)
+      title_rect = title_text.get_rect(center=(self.settings.screen_width / 2, self.settings.screen_height / 3))
       self.screen.blit(title_text, title_rect)
 
       # Display the prompt to start the game
       prompt_font = pg.font.Font('font/pixelFont.ttf', 36)
       prompt_text = prompt_font.render("Press 'Space' to play", True, (255, 255, 255))
-      prompt_rect = prompt_text.get_rect()
-      prompt_rect.center = (self.settings.screen_width / 2, self.settings.screen_height / 2)
+      prompt_rect = prompt_text.get_rect(center=(self.settings.screen_width / 2, self.settings.screen_height / 2))
       self.screen.blit(prompt_text, prompt_rect)
 
-      pg.display.flip()  # Update the display to show the launch screen
+      pg.display.flip()  # Refresh the screen to show the launch screen
 
       # Wait for the player to press 'Space' to start the game
       waiting = True
@@ -173,6 +163,8 @@ class Game:
               elif event.type == pg.KEYDOWN:
                   if event.key == pg.K_SPACE:
                       waiting = False
+      self.screen.fill((0, 0, 0))  # Optional: Clear the screen again before game starts
+
 
 if __name__ == '__main__':
     g = Game()
