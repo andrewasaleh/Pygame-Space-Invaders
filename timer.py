@@ -23,3 +23,4 @@ class Timer:
     self.update_index()
     return self.image_list[self.index]
   
+  

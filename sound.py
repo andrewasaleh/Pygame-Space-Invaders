@@ -8,7 +8,7 @@ class Sound:
         mixer.init() 
         self.volume = 0.1  
         self.phaser_sound = mixer.Sound("sounds/laser-sound.wav")
-        self.explosion_sound = mixer.Sound("sounds/explosion-sound.wav")  
+        self.explosion_sound = mixer.Sound("sounds/explosion-sound.wav")
         self.set_volume(self.volume)  
 
     def set_volume(self, volume=0.3):
@@ -40,3 +40,7 @@ class Sound:
 
     def play_explosion(self):
         self.explosion_sound.play()
+
+    def play_level_up(self):
+        self.level_up_sound.play()
+

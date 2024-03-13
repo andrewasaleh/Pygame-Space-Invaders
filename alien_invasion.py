@@ -17,6 +17,7 @@ class Game:
   
   def __init__(self):
     pg.init()
+    pg.mixer.init()
     self.settings = Settings()
     self.screen = pg.display.set_mode((self.settings.screen_width, self.settings.screen_height))
     pg.display.set_caption("Alien Invasion")
@@ -29,13 +30,10 @@ class Game:
     self.stats = GameStats(game=self)
     self.sound = Sound()
     self.sb = Scoreboard(game=self)
-
     self.ship = Ship(game=self)
     self.aliens = Aliens(game=self)  
     self.ship.set_aliens(self.aliens)
     self.ship.set_sb(self.sb)
-
-    # self.barriers = Barriers(game=self)
     self.game_active = False              # MUST be before Button is created
     self.first = True
     self.play_button = Button(game=self, text='Play')
@@ -43,7 +41,7 @@ class Game:
     self.create_barriers()
     self.barriers.draw(self.screen)  # Draws all barriers in the group to the screen
     self.finished = False 
-    
+
   def create_barriers(self):
       # Positioning example; adjust as needed
       barrier_positions = [(100, 600), (400, 600), (700, 600), (1000, 600)]
@@ -61,6 +59,7 @@ class Game:
           if alien in self.aliens.alien_group:
               self.aliens.alien_group.remove(alien)
       self.to_remove.clear()
+
 
   def check_events(self):
     for event in pg.event.get():
@@ -99,40 +98,45 @@ class Game:
     self.settings.initialize_dynamic_settings()                                  
 
   def game_over(self):
-    print('Game Over !')
-    pg.mouse.set_visible(True)
-    self.play_button.change_text('Play again?')
-    self.play_button.show()
-    self.first = True
-    self.game_active = False
-    self.stats.reset()
-    self.restart()
-    self.sound.play_game_over()
+      print('Game Over!')
+      pg.mouse.set_visible(True)
+      self.play_button.change_text('Play again?')
+      self.play_button.show()  # Make sure this method updates the button to be visible
+      self.game_active = False
+      self.stats.reset()
+      self.restart()
+      self.sound.play_game_over()
 
   def activate(self): 
     self.game_active = True
     self.first = False
-    self.sound.play_music("sounds/game-music.wav")
+    self.sound.play_music("sounds/game-music.wav") # Background Music
 
   def play(self):
       finished = False
       while not finished:
           self.check_events()
 
-          if self.game_active or self.first:
-              self.first = False
+          if self.game_active:
+              # Main game loop actions
               self.screen.blit(self.bg_image, (0, 0))
               self.ship.update()
               self.aliens.update()
-              if self.game_active:  # Ensure this is only true when the game is active
-                  self.barriers.draw(self.screen)  # Move this inside the conditional
+              self.barriers.draw(self.screen)
               self.sb.update()
+          elif self.first:
+              # If it's the first run, display the launch screen instead of playing the game immediately
+              self.show_launch_screen()
+              self.first = False  # Make sure to set this to False after showing the launch screen
           else:
+              # If the game is not active and it's not the first run, update and show the play again button
               self.play_button.update()
 
           pg.display.flip()
           time.sleep(0.02)
-
+  '''
+  Main Game Launch Screen
+  '''
   def show_launch_screen(self):
       """Display the launch screen and wait for the player to start the game."""
       self.screen.fill((0, 0, 0))  # Fill the screen with black
@@ -185,7 +189,6 @@ class Game:
 
       pg.display.flip()
 
-      # Wait for the player to interact with the buttons
       waiting = True
       while waiting:
           for event in pg.event.get():
@@ -194,16 +197,26 @@ class Game:
                   sys.exit()
               elif event.type == pg.MOUSEBUTTONDOWN:
                   mouse_pos = event.pos  # Get the mouse position
+                  # Check if "Play" button is clicked
                   if play_button_rect.inflate(20, 10).collidepoint(mouse_pos):
-                      waiting = False  # Begin the game
+                      waiting = False  # Exit the loop to start the game
+                      self.activate()  # Activate the game to start playing
                   elif high_scores_button_rect.inflate(20, 10).collidepoint(mouse_pos):
                       print("High Scores button clicked")
-                      # For example, call a method self.show_high_scores()
+                      self.show_high_scores()
+                      # After showing high scores, clear the screen or reset to the launch screen state as needed
+                      self.screen.fill((0, 0, 0))  # Optional: Clear the screen again
+                      self.show_launch_screen()  # Call launch screen again if you want to return to it
 
-      self.screen.fill((0, 0, 0))  # Optional: Clear the screen again before game starts
 
+                      # Optionally, clear the screen before the game starts
+                      self.screen.fill((0, 0, 0))
+                      pg.display.flip()
+
+  """
+  Scale aliens size for main screen point display
+  """
   def _scaled_dimensions(self, image_path, scale_factor):
-      """Calculate scaled dimensions of the image based on the scale factor."""
       image = pg.image.load(image_path)
       original_size = image.get_size()
       scaled_size = (int(original_size[0] * scale_factor), int(original_size[1] * scale_factor))
