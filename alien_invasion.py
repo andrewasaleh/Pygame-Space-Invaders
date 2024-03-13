@@ -135,19 +135,13 @@ class Game:
 
   def show_launch_screen(self):
       """Display the launch screen and wait for the player to start the game."""
-      self.screen.fill((0, 0, 0))  # Fill the screen with black or another color
+      self.screen.fill((0, 0, 0))  # Fill the screen with black
 
       # Display the game title
       title_font = pg.font.Font('font/pixelFont.ttf', 74)
       title_text = title_font.render("Alien Invasion", True, (255, 255, 255))
       title_rect = title_text.get_rect(center=(self.settings.screen_width / 2, self.settings.screen_height / 3))
       self.screen.blit(title_text, title_rect)
-
-      # Display the prompt to start the game
-      prompt_font = pg.font.Font('font/pixelFont.ttf', 36)
-      prompt_text = prompt_font.render("Press 'Space' to play", True, (255, 255, 255))
-      prompt_rect = prompt_text.get_rect(center=(self.settings.screen_width / 2, self.settings.screen_height / 2))
-      self.screen.blit(prompt_text, prompt_rect)
 
       names = ['Asset 2', 'Asset 3', 'Asset 4', 'Asset 5', 'Asset 6', 'Asset 7']
       points = [40, 10, 60, 100, 150, 200]
@@ -158,6 +152,27 @@ class Game:
       point_font = pg.font.Font('font/pixelFont.ttf', 20)
       start_y = self.settings.screen_height / 2 + 50
       
+      # Adjust button positioning
+      base_y_adjustment = 280  # Adjust this value to move buttons down
+      button_spacing = 60  # Vertical space between buttons
+
+      # Adjust base_y starting point for the "Play" button
+      base_y = self.settings.screen_height / 2 + base_y_adjustment
+
+      # "Play" Button
+      play_button_font = pg.font.Font('font/pixelFont.ttf', 36)
+      play_button_text = play_button_font.render("Play", True, (255, 255, 255))
+      play_button_rect = play_button_text.get_rect(center=(self.settings.screen_width / 2, base_y))
+      pg.draw.rect(self.screen, (0, 128, 0), play_button_rect.inflate(20, 10))  # Button background
+      self.screen.blit(play_button_text, play_button_rect)
+
+      # "High Scores" Button
+      high_scores_button_font = pg.font.Font('font/pixelFont.ttf', 36)
+      high_scores_button_text = high_scores_button_font.render("High Scores", True, (255, 255, 255))
+      high_scores_button_rect = high_scores_button_text.get_rect(center=(self.settings.screen_width / 2, base_y + button_spacing))
+      pg.draw.rect(self.screen, (128, 0, 0), high_scores_button_rect.inflate(20, 10))  # Button background
+      self.screen.blit(high_scores_button_text, high_scores_button_rect)
+
       # Display each alien image with its corresponding points
       for i, (name, point) in enumerate(zip(names, points)):
           alien_image = images[name]
@@ -170,16 +185,21 @@ class Game:
 
       pg.display.flip()
 
-      # Wait for the player to press 'Space' to start the game
+      # Wait for the player to interact with the buttons
       waiting = True
       while waiting:
           for event in pg.event.get():
               if event.type == pg.QUIT:
                   pg.quit()
                   sys.exit()
-              elif event.type == pg.KEYDOWN:
-                  if event.key == pg.K_SPACE:
-                      waiting = False
+              elif event.type == pg.MOUSEBUTTONDOWN:
+                  mouse_pos = event.pos  # Get the mouse position
+                  if play_button_rect.inflate(20, 10).collidepoint(mouse_pos):
+                      waiting = False  # Begin the game
+                  elif high_scores_button_rect.inflate(20, 10).collidepoint(mouse_pos):
+                      print("High Scores button clicked")
+                      # For example, call a method self.show_high_scores()
+
       self.screen.fill((0, 0, 0))  # Optional: Clear the screen again before game starts
 
   def _scaled_dimensions(self, image_path, scale_factor):
