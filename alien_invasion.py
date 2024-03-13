@@ -133,8 +133,6 @@ class Game:
           pg.display.flip()
           time.sleep(0.02)
 
-
-
   def show_launch_screen(self):
       """Display the launch screen and wait for the player to start the game."""
       self.screen.fill((0, 0, 0))  # Fill the screen with black or another color
@@ -151,7 +149,26 @@ class Game:
       prompt_rect = prompt_text.get_rect(center=(self.settings.screen_width / 2, self.settings.screen_height / 2))
       self.screen.blit(prompt_text, prompt_rect)
 
-      pg.display.flip()  # Refresh the screen to show the launch screen
+      names = ['Asset 2', 'Asset 3', 'Asset 4', 'Asset 5', 'Asset 6', 'Asset 7']
+      points = [40, 10, 60, 100, 150, 200]
+      scale_factor = 0.4  # Change this factor to scale the images by a desired amount
+
+      images = {name: pg.transform.scale(pg.image.load(f'images/alien_{name}.png'), self._scaled_dimensions(f'images/alien_{name}.png', scale_factor)) for name in names}
+      
+      point_font = pg.font.Font('font/pixelFont.ttf', 20)
+      start_y = self.settings.screen_height / 2 + 50
+      
+      # Display each alien image with its corresponding points
+      for i, (name, point) in enumerate(zip(names, points)):
+          alien_image = images[name]
+          alien_image_rect = alien_image.get_rect(topleft=(self.settings.screen_width / 2 - 100, start_y + i * 30))
+          self.screen.blit(alien_image, alien_image_rect)
+          
+          point_text = point_font.render(f'= {point} POINTS', True, (255, 255, 255))
+          point_rect = point_text.get_rect(topleft=(self.settings.screen_width / 2 - 50, start_y + i * 30))
+          self.screen.blit(point_text, point_rect)
+
+      pg.display.flip()
 
       # Wait for the player to press 'Space' to start the game
       waiting = True
@@ -165,6 +182,12 @@ class Game:
                       waiting = False
       self.screen.fill((0, 0, 0))  # Optional: Clear the screen again before game starts
 
+  def _scaled_dimensions(self, image_path, scale_factor):
+      """Calculate scaled dimensions of the image based on the scale factor."""
+      image = pg.image.load(image_path)
+      original_size = image.get_size()
+      scaled_size = (int(original_size[0] * scale_factor), int(original_size[1] * scale_factor))
+      return scaled_size
 
 if __name__ == '__main__':
     g = Game()
