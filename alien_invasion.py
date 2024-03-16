@@ -39,7 +39,7 @@ class Game:
     self.create_barriers()
     self.barriers.draw(self.screen)  # Draws all barriers in the group to the screen
     self.finished = False 
-
+    
     '''
     GameSounds
     '''
@@ -48,7 +48,6 @@ class Game:
     self.level_up_sound = pg.mixer.Sound('sounds/next_level.wav')  # level progression sound
     self.ship_explosion_sound = pg.mixer.Sound('sounds/ship_explosion.wav')  # ship explosion sound
     self.alien_fire_sound = pg.mixer.Sound('sounds/alien_fire.wav')  # alien fire sound
-
 
   def create_barriers(self):
       barrier_positions = [(100, 600), (400, 600), (700, 600), (1000, 600)]
@@ -67,36 +66,46 @@ class Game:
               self.aliens.alien_group.remove(alien)
       self.to_remove.clear()
 
+  def draw_volume_level(self):
+      font = pg.font.SysFont(None, 24)
+      volume_text = font.render(f"Volume: {int(self.sound.volume * 100)}%", True, pg.Color('white'))
+      self.screen.blit(volume_text, (10, 10))  # Adjust position as needed
 
   def check_events(self):
-    for event in pg.event.get():
-      type = event.type
-      if type == pg.KEYUP: 
-        key = event.key 
-        if key == pg.K_SPACE: self.ship.cease_fire()
-        elif key in Game.key_velocity: self.ship.all_stop()
-      elif type == pg.QUIT: 
-        pg.quit()
-        sys.exit()
-      elif type == pg.KEYDOWN:
-        key = event.key
-        if key == pg.K_SPACE: 
-          self.ship.fire_everything()
-        elif key == pg.K_p: 
-          self.play_button.select(True)
-          self.play_button.press()
-        elif key in Game.key_velocity: 
-          self.ship.add_speed(Game.key_velocity[key])
-      elif type == pg.MOUSEBUTTONDOWN:
-        b = self.play_button
-        x, y = pg.mouse.get_pos()
-        if b.rect.collidepoint(x, y):
-          b.press()
-      elif type == pg.MOUSEMOTION:
-        b = self.play_button
-        x, y = pg.mouse.get_pos()
-        b.select(b.rect.collidepoint(x, y))
-    
+      for event in pg.event.get():
+          type = event.type
+          if type == pg.KEYUP:
+              key = event.key
+              if key == pg.K_SPACE:
+                  self.ship.cease_fire()
+              elif key in Game.key_velocity:
+                  self.ship.all_stop()
+          elif type == pg.QUIT:
+              pg.quit()
+              sys.exit()
+          elif type == pg.KEYDOWN:
+              key = event.key
+              if key == pg.K_SPACE:
+                  self.ship.fire_everything()
+              elif key == pg.K_p:
+                  self.play_button.select(True)
+                  self.play_button.press()
+              elif key in Game.key_velocity:
+                  self.ship.add_speed(Game.key_velocity[key])
+              elif key == pg.K_PAGEUP:  # Increase volume with page up key
+                  self.sound.increase_volume()
+              elif key == pg.K_PAGEDOWN:  # Decrease volume with page down key
+                  self.sound.decrease_volume()
+          elif type == pg.MOUSEBUTTONDOWN:
+              b = self.play_button
+              x, y = pg.mouse.get_pos()
+              if b.rect.collidepoint(x, y):
+                  b.press()
+          elif type == pg.MOUSEMOTION:
+              b = self.play_button
+              x, y = pg.mouse.get_pos()
+              b.select(b.rect.collidepoint(x, y))
+
   def restart(self):
     self.screen.fill(self.settings.bg_color)
     self.ship.reset()
@@ -154,6 +163,12 @@ class Game:
       title_rect = title_text.get_rect(center=(self.settings.screen_width / 2, self.settings.screen_height / 3))
       self.screen.blit(title_text, title_rect)
 
+      # Display the sound adjustment message
+      instructions_font = pg.font.Font('font/pixelFont.ttf', 24)  # Smaller font size than the title
+      instructions_text = instructions_font.render("Adjust Sound with PG UP/PG DOWN keys", True, (255, 255, 255))
+      instructions_rect = instructions_text.get_rect(center=(self.settings.screen_width / 2, title_rect.bottom + 30))
+      self.screen.blit(instructions_text, instructions_rect)
+
       names = ['rainbow', 'arrow', 'octopus', 'hunter', 'saucer', 'slicer']
       points = [70, 140, 210, 280, 350, 420]
       scale_factor = 0.4  # Change this factor to scale the images by a desired amount
@@ -165,34 +180,41 @@ class Game:
       start_y = self.settings.screen_height / 2 + 50
       
       # Adjust button positioning
-      base_y_adjustment = 280  # Adjust this value to move buttons down
+      base_y_adjustment = 300  # Adjust this value to move buttons down
       button_spacing = 60  # Vertical space between buttons
 
       # Adjust base_y starting point for the "Play" button
       base_y = self.settings.screen_height / 2 + base_y_adjustment
 
       # "Play" Button
-      play_button_font = pg.font.Font('font/pixelFont.ttf', 36)
-      play_button_text = play_button_font.render("Play", True, (255, 255, 255))
+      play_button_font = pg.font.Font('font/pixelFont.ttf', 30)
+      play_button_text = play_button_font.render("PLAY GAME", True, (255, 255, 255))
       play_button_rect = play_button_text.get_rect(center=(self.settings.screen_width / 2, base_y))
       pg.draw.rect(self.screen, (0, 128, 0), play_button_rect.inflate(20, 10))  # Button background
       self.screen.blit(play_button_text, play_button_rect)
 
       # "High Scores" Button
-      high_scores_button_font = pg.font.Font('font/pixelFont.ttf', 36)
-      high_scores_button_text = high_scores_button_font.render("High Scores", True, (255, 255, 255))
+      high_scores_button_font = pg.font.Font('font/pixelFont.ttf', 30)
+      high_scores_button_text = high_scores_button_font.render("HIGH SCORES", True, (255, 255, 255))
       high_scores_button_rect = high_scores_button_text.get_rect(center=(self.settings.screen_width / 2, base_y + button_spacing))
       pg.draw.rect(self.screen, (128, 0, 0), high_scores_button_rect.inflate(20, 10))  # Button background
       self.screen.blit(high_scores_button_text, high_scores_button_rect)
 
+      start_y = self.settings.screen_height / 2 + 1 # Adjust this value to move the images up or down
+
+      # Assuming a y_spacing to control the space between each row
+      y_spacing = 40  # Adjust this value to increase or decrease the space between rows
+
       # Display each alien image with its corresponding points
       for i, (name, point) in enumerate(zip(names, points)):
           alien_image = images[name]
-          alien_image_rect = alien_image.get_rect(topleft=(self.settings.screen_width / 2 - 100, start_y + i * 30))
+          # Adjust only the y-coordinate in topleft for vertical positioning
+          alien_image_rect = alien_image.get_rect(topleft=(self.settings.screen_width / 2 - 100, start_y + i * y_spacing))
           self.screen.blit(alien_image, alien_image_rect)
           
+          # Adjust the position of the point text relative to its alien image
           point_text = point_font.render(f'= {point} POINTS', True, (255, 255, 255))
-          point_rect = point_text.get_rect(topleft=(self.settings.screen_width / 2 - 50, start_y + i * 30))
+          point_rect = point_text.get_rect(topleft=(self.settings.screen_width / 2 - 50, start_y + i * y_spacing))
           self.screen.blit(point_text, point_rect)
 
       pg.display.flip()

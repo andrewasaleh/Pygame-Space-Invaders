@@ -61,7 +61,8 @@ class Alien(Sprite):
   def fire(self, lasers):
       timer = Timer(Aliens.laser_images, delta=10)
       lasers.add(owner=self, timer=timer)
-      self.game.alien_fire_sound.play()  # Play the alien fire sound
+      # Use the sound object from the game instance to play the alien fire sound
+      self.game.sound.play_alien_fire()
 
   def check_edges(self):
     r = self.rect 
@@ -84,7 +85,8 @@ class Alien(Sprite):
   def hit(self):
       self.isdying = True
       self.timer = self.explosiontimer
-      self.game.explosion_sound.play()  # Play the explosion sound
+      # Use the sound object from the game instance to play the explosion sound
+      self.game.sound.play_explosion()
       
 class Aliens():
   laser_image_files = [f'images/alien_laser_0{x}.png' for x in range(2)]

@@ -60,13 +60,15 @@ class Ship(Sprite):
   def cease_fire(self): self.continuous_fire = False
 
   def fire(self): 
-    timer = Timer(Ship.laser_images, start_index=randint(0, len(Ship.laser_images) - 1), delta=10)
-    self.lasers.add(owner=self, timer=timer)
-    self.sound.play_phaser()
+      timer = Timer(Ship.laser_images, start_index=randint(0, len(Ship.laser_images) - 1), delta=10)
+      self.lasers.add(owner=self, timer=timer)
+      # Use the sound object from the game instance to play the phaser sound
+      self.game.sound.play_phaser()
 
-  def hit(self): 
+  def hit(self):
       print('Abandon ship! Ship has been hit!')
-      self.game.ship_explosion_sound.play()  # Play the explosion sound
+      # Use the sound object from the game instance to play the ship explosion sound
+      self.game.sound.play_ship_explosion()
       time.sleep(0.2)
       self.stats.ships_left -= 1
       self.sb.prep_ships()

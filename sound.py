@@ -66,6 +66,14 @@ class Sound:
         # Play laser collision sound effect
         self.laser_collision_sound.play()  
 
+    def increase_volume(self):  # Increase volume with page up key
+        self.volume = min(1.0, self.volume + 0.1)  # Ensure volume does not exceed 1.0
+        self.set_volume(self.volume)
+
+    def decrease_volume(self):  # Increase volume with page down key
+        self.volume = max(0.0, self.volume - 0.1)  # Ensure volume does not go below 0.0
+        self.set_volume(self.volume)
+
     def play_game_over(self):
         # Special method to play game over sound and ensure it's not cut off
         self.play_music("sounds/game-over.wav")
