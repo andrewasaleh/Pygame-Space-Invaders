@@ -7,9 +7,7 @@ from vector import Vector
 from game_stats import GameStats
 from button import Button
 from scoreboard import Scoreboard
-from barriers import Barrier
 from sound import Sound
-
 
 class Game:
   key_velocity = {pg.K_RIGHT: Vector(1, 0), pg.K_LEFT: Vector(-1,  0),
@@ -35,25 +33,13 @@ class Game:
     self.game_active = False              # MUST be before Button is created
     self.first = True
     self.play_button = Button(game=self, text='Play')
-    self.barriers = pg.sprite.Group()
-    self.create_barriers()
-    self.barriers.draw(self.screen)  # Draws all barriers in the group to the screen
     self.finished = False 
-    
-    '''
-    GameSounds
-    '''
+    # In Game Sounds
     self.sound = Sound()  
     self.explosion_sound = pg.mixer.Sound('sounds/alien_explosion.wav')  # alien explosion sound
     self.level_up_sound = pg.mixer.Sound('sounds/next_level.wav')  # level progression sound
     self.ship_explosion_sound = pg.mixer.Sound('sounds/ship_explosion.wav')  # ship explosion sound
     self.alien_fire_sound = pg.mixer.Sound('sounds/alien_fire.wav')  # alien fire sound
-
-  def create_barriers(self):
-      barrier_positions = [(100, 600), (400, 600), (700, 600), (1000, 600)]
-      for pos in barrier_positions:
-          barrier = Barrier(self, *pos)
-          self.barriers.add(barrier)  
 
   def schedule_removal(self, alien):
       if alien not in self.to_remove:
@@ -110,7 +96,6 @@ class Game:
     self.screen.fill(self.settings.bg_color)
     self.ship.reset()
     self.aliens.reset()
-    # self.barriers.reset()
     self.settings.initialize_dynamic_settings()                                  
 
   def game_over(self):
@@ -124,9 +109,10 @@ class Game:
       self.sound.play_game_over()
 
   def activate(self): 
-    self.game_active = True
-    self.first = False
-    self.sound.play_music("sounds/game-music.wav") # Background Music
+      self.game_active = True
+      self.first = False
+      self.sound.play_music("sounds/game-music.wav") # Background Music
+
 
   def play(self):
       finished = False
@@ -139,7 +125,6 @@ class Game:
               self.ship.update()
               self.aliens.update()
               self.sb.update()
-              self.barriers.draw(self.screen)
           elif self.first:
               # If it's the first run, display the launch screen instead of playing the game immediately
               self.show_launch_screen()
@@ -158,9 +143,9 @@ class Game:
       self.screen.fill((0, 0, 0))  # Fill the screen with black
 
       # Display the game title
-      title_font = pg.font.Font('font/pixelFont.ttf', 74)
-      title_text = title_font.render("Alien Invasion", True, (255, 255, 255))
-      title_rect = title_text.get_rect(center=(self.settings.screen_width / 2, self.settings.screen_height / 3))
+      title_font = pg.font.Font('font/pixelFont.ttf', 85)
+      title_text = title_font.render("Alien Invasion", True, (50, 250, 80))
+      title_rect = title_text.get_rect(center=(self.settings.screen_width / 2, self.settings.screen_height / 5))
       self.screen.blit(title_text, title_rect)
 
       # Display the sound adjustment message
@@ -184,23 +169,21 @@ class Game:
       button_spacing = 60  # Vertical space between buttons
 
       # Adjust base_y starting point for the "Play" button
-      base_y = self.settings.screen_height / 2 + base_y_adjustment
+      base_y = self.settings.screen_height / 3 + base_y_adjustment
 
       # "Play" Button
       play_button_font = pg.font.Font('font/pixelFont.ttf', 30)
-      play_button_text = play_button_font.render("PLAY GAME", True, (255, 255, 255))
+      play_button_text = play_button_font.render("PLAY GAME", True, (50, 250, 80))
       play_button_rect = play_button_text.get_rect(center=(self.settings.screen_width / 2, base_y))
-      pg.draw.rect(self.screen, (0, 128, 0), play_button_rect.inflate(20, 10))  # Button background
       self.screen.blit(play_button_text, play_button_rect)
 
       # "High Scores" Button
       high_scores_button_font = pg.font.Font('font/pixelFont.ttf', 30)
       high_scores_button_text = high_scores_button_font.render("HIGH SCORES", True, (255, 255, 255))
       high_scores_button_rect = high_scores_button_text.get_rect(center=(self.settings.screen_width / 2, base_y + button_spacing))
-      pg.draw.rect(self.screen, (128, 0, 0), high_scores_button_rect.inflate(20, 10))  # Button background
       self.screen.blit(high_scores_button_text, high_scores_button_rect)
 
-      start_y = self.settings.screen_height / 2 + 1 # Adjust this value to move the images up or down
+      start_y = self.settings.screen_height / 2.8 # Adjust this value to move the images up or down
 
       # Assuming a y_spacing to control the space between each row
       y_spacing = 40  # Adjust this value to increase or decrease the space between rows

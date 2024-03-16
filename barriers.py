@@ -1,10 +1,11 @@
 import pygame as pg
 
 class Barrier(pg.sprite.Sprite):
-    def __init__(self, game, x, y, scale=0.5):
+    def __init__(self, game, x, y, max_health=3, scale=0.5):
         super().__init__()
         self.screen = game.screen
-        # Load the images and scale them
+        self.max_health = max_health
+        self.health = max_health
         self.images = {
             'full': pg.transform.scale(pg.image.load('images/barrier_full.png').convert_alpha(), self._scaled_dimensions('images/barrier_full.png', scale)),
             'medium': pg.transform.scale(pg.image.load('images/barrier_medium.png').convert_alpha(), self._scaled_dimensions('images/barrier_medium.png', scale)),
@@ -25,22 +26,18 @@ class Barrier(pg.sprite.Sprite):
         return scaled_size
 
     def take_damage(self):
-        # Call this method whenever the barrier takes a hit
-        if self.state == 'full':
-            self.state = 'medium'
-        elif self.state == 'medium':
-            self.state = 'heavy'
-        elif self.state == 'heavy':
+        """Reduce the barrier's health and update its state."""
+        self.health -= 1
+        if self.health <= 0:
             self.state = 'destroyed'
-        else:
-            self.kill()  # Remove the barrier if it's already destroyed
+        elif self.health <= self.max_health // 3:
+            self.state = 'heavy'
+        elif self.health <= 2 * self.max_health // 3:
+            self.state = 'medium'
 
         # Update the image based on the new state
         self.image = self.images[self.state]
 
     def draw(self):
+        """Draw the barrier on the screen."""
         self.screen.blit(self.image, self.rect)
-
-
-if __name__ == '__main__':
-    print("\nERROR: barriers.py is the wrong file! Run play from alien_invasions.py\n")
