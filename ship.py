@@ -32,6 +32,15 @@ class Ship(Sprite):
 
     self.rect.midbottom = self.screen_rect.midbottom 
     self.fire_counter = 0
+    
+    # Load explosion images into a list for the animation
+    self.explosion_images = [pg.image.load(f'images/ship_explosion_0{x}.png') for x in range(1,8)]
+    self.explosion_index = 0  # To keep track of the current explosion frame
+    self.is_exploding = False  # Control flag for explosion state
+
+    # Add an explosion counter and set the speed
+    self.explosion_counter = 0
+    self.explosion_speed = 10  # Increase this value to slow down the animation
 
   def set_aliens(self, aliens): self.aliens = aliens
 
@@ -69,6 +78,8 @@ class Ship(Sprite):
       print('Abandon ship! Ship has been hit!')
       # Use the sound object from the game instance to play the ship explosion sound
       self.game.sound.play_ship_explosion()
+      self.is_exploding = True
+      self.explosion_index = 0  # Reset explosion animation
       time.sleep(0.2)
       self.stats.ships_left -= 1
       self.sb.prep_ships()
@@ -93,14 +104,29 @@ class Ship(Sprite):
     self.center_ship()
 
   def update(self):
-    self.rect.left += self.v.x * self.settings.ship_speed
-    self.rect.top += self.v.y * self.settings.ship_speed
-    self.clamp()
-    self.draw()
-    if self.continuous_fire and self.fire_counter % 3 == 0:   # slow down firing slightly
-      self.fire()
-    self.fire_counter += 1
-    self.lasers.update()
+      if self.is_exploding:
+          # Update the image to the next frame of the explosion
+          self.image = self.explosion_images[self.explosion_index]
+          self.explosion_index += 1
+          if self.explosion_index >= len(self.explosion_images):
+              # Explosion animation finished
+              self.is_exploding = False
+              if self.stats.ships_left <= 0:
+                  self.game.game_over()
+              else:
+                  self.game.restart()
+                  # Reset ship image to default after explosion
+                  self.image = pg.image.load('images/ship.png')
+      else:
+          self.rect.left += self.v.x * self.settings.ship_speed
+          self.rect.top += self.v.y * self.settings.ship_speed
+          self.clamp()
+          if self.continuous_fire and self.fire_counter % 3 == 0:
+              self.fire()
+          self.fire_counter += 1
+          self.lasers.update()
+
+      self.draw()
 
   def draw(self):
     self.screen.blit(self.image, self.rect)
