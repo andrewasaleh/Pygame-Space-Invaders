@@ -65,14 +65,15 @@ class Ship(Sprite):
     self.sound.play_phaser()
 
   def hit(self): 
-    print('Abandon ship! Ship has been hit!')
-    time.sleep(0.2)
-    self.stats.ships_left -= 1
-    self.sb.prep_ships()
-    if self.stats.ships_left <= 0:
-      self.game.game_over()
-    else:
-      self.game.restart()
+      print('Abandon ship! Ship has been hit!')
+      self.game.ship_explosion_sound.play()  # Play the explosion sound
+      time.sleep(0.2)
+      self.stats.ships_left -= 1
+      self.sb.prep_ships()
+      if self.stats.ships_left <= 0:
+          self.game.game_over()
+      else:
+          self.game.restart()
 
   def laser_offscreen(self, rect): return rect.bottom < 0
 

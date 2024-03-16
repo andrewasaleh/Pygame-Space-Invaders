@@ -22,7 +22,6 @@ class Game:
       (self.settings.screen_width, self.settings.screen_height))
     pg.display.set_caption("Alien Invasion")
 
-    # Load and scale the background image
     self.bg_image = pg.image.load('images/play-background.png').convert()
     self.bg_image = pg.transform.scale(self.bg_image, (self.settings.screen_width, self.settings.screen_height))
     self.aliens = None 
@@ -41,8 +40,17 @@ class Game:
     self.barriers.draw(self.screen)  # Draws all barriers in the group to the screen
     self.finished = False 
 
+    '''
+    GameSounds
+    '''
+    self.sound = Sound()  
+    self.explosion_sound = pg.mixer.Sound('sounds/alien_explosion.wav')  # alien explosion sound
+    self.level_up_sound = pg.mixer.Sound('sounds/next_level.wav')  # level progression sound
+    self.ship_explosion_sound = pg.mixer.Sound('sounds/ship_explosion.wav')  # ship explosion sound
+    self.alien_fire_sound = pg.mixer.Sound('sounds/alien_fire.wav')  # alien fire sound
+
+
   def create_barriers(self):
-      # Positioning example; adjust as needed
       barrier_positions = [(100, 600), (400, 600), (700, 600), (1000, 600)]
       for pos in barrier_positions:
           barrier = Barrier(self, *pos)

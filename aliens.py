@@ -59,8 +59,9 @@ class Alien(Sprite):
     self.timer = self.explosiontimer
 
   def fire(self, lasers):
-    timer = Timer(Aliens.laser_images, delta=10)
-    lasers.add(owner=self, timer=timer)
+      timer = Timer(Aliens.laser_images, delta=10)
+      lasers.add(owner=self, timer=timer)
+      self.game.alien_fire_sound.play()  # Play the alien fire sound
 
   def check_edges(self):
     r = self.rect 
@@ -80,7 +81,11 @@ class Alien(Sprite):
     self.image = self.timer.current_image()
     self.screen.blit(self.image, self.rect)
 
-
+  def hit(self):
+      self.isdying = True
+      self.timer = self.explosiontimer
+      self.game.explosion_sound.play()  # Play the explosion sound
+      
 class Aliens():
   laser_image_files = [f'images/alien_laser_0{x}.png' for x in range(2)]
   laser_images = [pg.transform.scale(pg.image.load(x), (50, 50)) for x in laser_image_files]
@@ -104,7 +109,7 @@ class Aliens():
     self.create_fleet()
 
   def create_alien(self, x, y, row, alien_no):
-      alien = Alien(self.game, row, alien_no)
+      alien = Alien(self.game, row, alien_no) 
       alien.x = x
       alien.rect.x, alien.rect.y = x, y
       self.alien_group.add(alien)
@@ -161,8 +166,9 @@ class Aliens():
         self.sb.check_high_score()
 
     # laser-laser collisions
-    collisions = pg.sprite.groupcollide(self.ship.lasers.lasergroup(), self.lasers.lasergroup(), 
-                                        True, True)
+    collisions = pg.sprite.groupcollide(self.ship.lasers.lasergroup(), self.lasers.lasergroup(), True, True)
+    if collisions:
+        self.game.sound.play_laser_collision()
 
     for alien in self.alien_group.sprites():
       alien.update(self.v, delta_y)
@@ -183,6 +189,7 @@ class Aliens():
       self.settings.increase_speed()
       self.stats.level += 1
       self.sb.prep_level()
+      self.game.level_up_sound.play()  # Play the level progression sound
 
     # aliens hitting the ship
     if pg.sprite.spritecollideany(self.ship, self.alien_group):
