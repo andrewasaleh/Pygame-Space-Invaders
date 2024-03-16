@@ -17,15 +17,6 @@ class GameStats:
         except FileNotFoundError:
             return 0
 
-    def get_high_scores(self):
-        try:
-            with open('high_scores.txt', 'r') as f:
-                high_scores = [int(line.strip()) for line in f.readlines()]
-            high_scores.sort(reverse=True)
-            return high_scores
-        except FileNotFoundError:
-            return []
-
     def save_high_score(self):
         with open('high_score.txt', 'w') as f:
             f.write(str(self.high_score))
@@ -55,3 +46,5 @@ class GameStats:
                     sys.exit()
                 elif event.type == pg.KEYDOWN:
                     waiting_for_key = False
+        # Save high score before returning
+        self.save_high_score()

@@ -4,7 +4,7 @@ class Settings:
     self.screen_height = 800
     self.bg_color = (10, 10, 10)
 
-    self.laser_width = 5
+    self.laser_width = 10
     self.laser_height = 5
     self.laser_color = (255, 0, 0)
 
@@ -22,7 +22,7 @@ class Settings:
 
   def initialize_dynamic_settings(self):
     self.laser_speed = 20
-    self.alien_speed = 7
+    self.alien_speed = 5
     self.ship_speed = 20
 
     self.alien_points = 50

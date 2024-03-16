@@ -17,16 +17,15 @@ class Game:
   
   def __init__(self):
     pg.init()
-    pg.mixer.init()
     self.settings = Settings()
-    self.screen = pg.display.set_mode((self.settings.screen_width, self.settings.screen_height))
+    self.screen = pg.display.set_mode(
+      (self.settings.screen_width, self.settings.screen_height))
     pg.display.set_caption("Alien Invasion")
 
     # Load and scale the background image
     self.bg_image = pg.image.load('images/play-background.png').convert()
     self.bg_image = pg.transform.scale(self.bg_image, (self.settings.screen_width, self.settings.screen_height))
-
-    self.aliens = None
+    self.aliens = None 
     self.stats = GameStats(game=self)
     self.sound = Sound()
     self.sb = Scoreboard(game=self)
@@ -47,7 +46,7 @@ class Game:
       barrier_positions = [(100, 600), (400, 600), (700, 600), (1000, 600)]
       for pos in barrier_positions:
           barrier = Barrier(self, *pos)
-          self.barriers.add(barrier)  # Assuming self.barriers is a pygame.sprite.Group
+          self.barriers.add(barrier)  
 
   def schedule_removal(self, alien):
       if alien not in self.to_remove:
@@ -122,8 +121,8 @@ class Game:
               self.screen.blit(self.bg_image, (0, 0))
               self.ship.update()
               self.aliens.update()
-              self.barriers.draw(self.screen)
               self.sb.update()
+              self.barriers.draw(self.screen)
           elif self.first:
               # If it's the first run, display the launch screen instead of playing the game immediately
               self.show_launch_screen()
@@ -147,11 +146,12 @@ class Game:
       title_rect = title_text.get_rect(center=(self.settings.screen_width / 2, self.settings.screen_height / 3))
       self.screen.blit(title_text, title_rect)
 
-      names = ['Asset 2', 'Asset 3', 'Asset 4', 'Asset 5', 'Asset 6', 'Asset 7']
-      points = [40, 10, 60, 100, 150, 200]
+      names = ['rainbow', 'arrow', 'octopus', 'hunter', 'saucer', 'slicer']
+      points = [70, 140, 210, 280, 350, 420]
       scale_factor = 0.4  # Change this factor to scale the images by a desired amount
 
-      images = {name: pg.transform.scale(pg.image.load(f'images/alien_{name}.png'), self._scaled_dimensions(f'images/alien_{name}.png', scale_factor)) for name in names}
+      images = {name: pg.transform.scale(pg.image.load(f'images/aliens/alien_{name}.png'), 
+      self._scaled_dimensions(f'images/aliens/alien_{name}.png', scale_factor)) for name in names}
       
       point_font = pg.font.Font('font/pixelFont.ttf', 20)
       start_y = self.settings.screen_height / 2 + 50
@@ -224,5 +224,5 @@ class Game:
 
 if __name__ == '__main__':
     g = Game()
-    g.show_launch_screen()  # Show the launch screen before starting the game
+    g.show_launch_screen() 
     g.play()

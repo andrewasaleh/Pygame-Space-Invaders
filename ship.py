@@ -5,16 +5,8 @@ from lasers import Lasers
 from timer import Timer
 from vector import Vector 
 from time import sleep
-from sound import Sound
+from random import randint
 
-class Spritesheet:
-    def __init__(self, filename):
-        self.spritesheet = pg.image.load(filename).convert_alpha()
-
-    def get_image(self, x, y, width, height):
-        image = pg.Surface((width, height), pg.SRCALPHA)
-        image.blit(self.spritesheet, (0, 0), (x, y, width, height))
-        return image
 
 class Ship(Sprite):
   laser_image_files = [f'images/ship_laser_0{x}.png' for x in range(2)]
@@ -26,7 +18,7 @@ class Ship(Sprite):
     self.v = v
     self.settings = game.settings
     self.stats = game.stats
-    self.laser_timer = Timer(image_list=Ship.laser_images, delta=10)
+    self.laser_timer = Timer(image_list=Ship.laser_images, delta=20)
     self.lasers = Lasers(game=game, v=Vector(0, -1) * self.settings.laser_speed, 
                          timer=self.laser_timer, owner=self)
     self.aliens = game.aliens
@@ -34,22 +26,12 @@ class Ship(Sprite):
     self.continuous_fire = False
     self.screen = game.screen 
     self.screen_rect = game.screen.get_rect() 
+
     self.image = pg.image.load('images/ship.png')
     self.rect = self.image.get_rect()
+
     self.rect.midbottom = self.screen_rect.midbottom 
     self.fire_counter = 0
-    self.explosion_spritesheet = Spritesheet('spritesheets/boom.png')
-    self.explosion_frames = self.load_explosion_frames()
-    self.exploding = False
-    self.explosion_frame_index = 0
-    self.explosion_animation_speed = 0.4
-
-  def load_explosion_frames(self):
-      frames = []
-      for i in range(12):  
-          frame = self.explosion_spritesheet.get_image(i * 64, 0, 64, 64)
-          frames.append(frame)
-      return frames
 
   def set_aliens(self, aliens): self.aliens = aliens
 
@@ -78,22 +60,19 @@ class Ship(Sprite):
   def cease_fire(self): self.continuous_fire = False
 
   def fire(self): 
-    self.lasers.add(owner=self)
+    timer = Timer(Ship.laser_images, start_index=randint(0, len(Ship.laser_images) - 1), delta=10)
+    self.lasers.add(owner=self, timer=timer)
     self.sound.play_phaser()
 
-  def hit(self):
-      print('Abandon ship! Ship has been hit!')
-      # Play explosion sound
-      self.sound.play_explosion()
-      time.sleep(0.2)  
-      self.stats.ships_left -= 1
-      self.sb.prep_ships()
-      self.exploding = True
-      self.explosion_frame_index = 0
-      if self.stats.ships_left <= 0:
-          self.game.game_over()
-      else:
-          self.game.restart()
+  def hit(self): 
+    print('Abandon ship! Ship has been hit!')
+    time.sleep(0.2)
+    self.stats.ships_left -= 1
+    self.sb.prep_ships()
+    if self.stats.ships_left <= 0:
+      self.game.game_over()
+    else:
+      self.game.restart()
 
   def laser_offscreen(self, rect): return rect.bottom < 0
 
@@ -111,25 +90,17 @@ class Ship(Sprite):
     self.center_ship()
 
   def update(self):
-      if self.exploding:
-          self.explosion_frame_index += self.explosion_animation_speed
-          if self.explosion_frame_index >= len(self.explosion_frames):
-              self.exploding = False
-      self.rect.left += self.v.x * self.settings.ship_speed
-      self.rect.top += self.v.y * self.settings.ship_speed
-      self.clamp()
-      self.draw()
-      if self.continuous_fire and self.fire_counter % 3 == 0:   # slow down firing slightly
-        self.fire()
-      self.fire_counter += 1
-      self.lasers.update()
+    self.rect.left += self.v.x * self.settings.ship_speed
+    self.rect.top += self.v.y * self.settings.ship_speed
+    self.clamp()
+    self.draw()
+    if self.continuous_fire and self.fire_counter % 3 == 0:   # slow down firing slightly
+      self.fire()
+    self.fire_counter += 1
+    self.lasers.update()
 
   def draw(self):
-      if self.exploding:
-          frame = self.explosion_frames[int(self.explosion_frame_index)]
-          self.screen.blit(frame, self.rect.topleft)
-      else:
-          self.screen.blit(self.image, self.rect)
+    self.screen.blit(self.image, self.rect)
 
 
 if __name__ == '__main__':
